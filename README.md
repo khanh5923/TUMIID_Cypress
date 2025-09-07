@@ -12,5 +12,7 @@ npm install --save-dev cypress-xpath
 ```
 npx cypress run --spec "cypress/e2e/features/login.feature" // run a special test
 ```
-If running tests fail, you can use 
+If running tests fail, you can use
+```bash
 npx cypress open --clear-cache
+```
