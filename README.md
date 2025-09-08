@@ -8,6 +8,7 @@ This is a new project, I am switching from Playwright to Cypress with BDD, POM
 ```bash
 # 1. Install Cypress
 npm install cypress --save-dev
+npm install --save-dev typescript
 
 # 2. Open Cypress for the first time
 npx cypress open
