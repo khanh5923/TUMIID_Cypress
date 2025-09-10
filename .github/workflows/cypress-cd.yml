@@ -17,8 +17,17 @@ jobs:
         with:
           node-version: "18"
 
+      - name: Clean node_modules
+        run: rm -rf node_modules
+
       - name: Install dependencies
         run: npm install
 
+      - name: Install Cypress globally
+        run: npm install -g cypress
+
+      - name: Verify Cypress installation
+        run: npx cypress verify
+
       - name: Run Cypress tests
-        run: npx cypress run
+        run: npx cypress run --spec "cypress/e2e/features/**/*.feature"
