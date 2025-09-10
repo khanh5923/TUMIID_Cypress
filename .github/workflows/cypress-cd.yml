@@ -1,33 +1,33 @@
-name: Build and Test with Cypress
+name: Cypress E2E Tests
+
 on:
   push:
-    branches:
-      - master
+    branches: ["master"]
   pull_request:
+    branches: ["master"]
 
 jobs:
-  build-and-test:
+  cypress-run:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Install Node.js
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: "18"
-
-      - name: Clean node_modules
-        run: rm -rf node_modules
+          node-version: 18
+          cache: "npm"
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
-      - name: Install Cypress globally
-        run: npm install -g cypress
-
-      - name: Verify Cypress installation
+      - name: Verify Cypress
         run: npx cypress verify
 
       - name: Run Cypress tests
-        run: npx cypress run --spec "cypress/e2e/features/**/*.feature"
+        uses: cypress-io/github-action@v6
+        with:
+            install: true
+            spec: "cypress/e2e/features/**/*.feature"
