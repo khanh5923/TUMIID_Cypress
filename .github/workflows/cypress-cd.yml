@@ -5,9 +5,15 @@ on:
     branches: ["master"]
   pull_request:
     branches: ["master"]
+  workflow_dispatch:               # 👈 allows manual run
+    inputs:
+      tag:
+        description: "Select which tag(s) to run (@smoke, @regression, etc.)"
+        required: true
+        default: "@smoke"
 
 jobs:
-  # Job 1 - Install deps (cache node_modules)
+  # Job 1 - Install deps
   install:
     runs-on: ubuntu-latest
     steps:
@@ -23,13 +29,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-  # Job 2 - Run BDD feature tests with tags
+  # Job 2 - Run BDD feature tests (with tags from input)
   cypress-bdd-tests:
     runs-on: ubuntu-latest
     needs: install
-    strategy:
-      matrix:
-        tag: [ "@smoke", "@regression" ]   # Run separate jobs per tag
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -39,13 +42,9 @@ jobs:
       - run: npm ci
       - run: npx cypress verify
       - name: Run BDD Cypress tests by tag
-        uses: cypress-io/github-action@v6
-        with:
-          install: false
-          spec: "cypress/e2e/features/**/*.feature"
-          command: npx cypress run --env tags='${{ matrix.tag }}'
+        run: npx cypress run --env tags="${{ github.event.inputs.tag }}" --spec "cypress/e2e/features/**/*.feature"
 
-  # Job 3 - Run normal Cypress UI tests
+  # Job 3 - Run normal Cypress tests (always runs)
   cypress-ui-tests:
     runs-on: ubuntu-latest
     needs: install
