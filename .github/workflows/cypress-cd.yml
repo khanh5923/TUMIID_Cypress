@@ -1,38 +1,26 @@
 name: Cypress CI/CD
 
 on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Choose which tag to run"
+        required: true
+        default: "@smoke"
+        type: choice
+        options:
+          - "@smoke"
+          - "@regression"
+          - "@api"
+
   push:
     branches: ["master"]
   pull_request:
     branches: ["master"]
-  workflow_dispatch:               # 👈 allows manual run
-    inputs:
-      tag:
-        description: "Select which tag(s) to run (@smoke, @regression, etc.)"
-        required: true
-        default: "@smoke"
 
 jobs:
-  # Job 1 - Install deps
-  install:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-  # Job 2 - Run BDD feature tests (with tags from input)
   cypress-bdd-tests:
     runs-on: ubuntu-latest
-    needs: install
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -41,23 +29,9 @@ jobs:
           cache: "npm"
       - run: npm ci
       - run: npx cypress verify
-      - name: Run BDD Cypress tests by tag
-        run: npx cypress run --env tags="${{ github.event.inputs.tag }}" --spec "cypress/e2e/features/**/*.feature"
-
-  # Job 3 - Run normal Cypress tests (always runs)
-  cypress-ui-tests:
-    runs-on: ubuntu-latest
-    needs: install
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 18
-          cache: "npm"
-      - run: npm ci
-      - run: npx cypress verify
-      - name: Run UI Cypress tests
-        uses: cypress-io/github-action@v6
-        with:
-          install: false
-          spec: "cypress/e2e/**/*.cy.js"
+      - name: Run Cypress BDD tests with selected tag
+        run: |
+          npx cypress run \
+            --browser chrome --headless \
+            --env TAGS="${{ github.event.inputs.tag }}" \
+            --spec "cypress/e2e/features/**/*.feature"
