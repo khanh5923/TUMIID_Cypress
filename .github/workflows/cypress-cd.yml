@@ -21,17 +21,28 @@ on:
 jobs:
   cypress-bdd-tests:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 18
           cache: "npm"
-      - run: npm ci
-      - run: npx cypress verify
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Verify Cypress
+        run: npx cypress verify
+
       - name: Run Cypress BDD tests with selected tag
         run: |
+          echo "Running scenarios with tag: ${{ github.event.inputs.tag }}"
           npx cypress run \
-            --browser chrome --headless \
-            --env TAGS="${{ github.event.inputs.tag }}" \
+            --browser chrome \
+            --headless \
+            --env TAGS=${{ github.event.inputs.tag }} \
             --spec "cypress/e2e/features/**/*.feature"

@@ -4,6 +4,6 @@
     "@bahmutov/cypress-esbuild-preprocessor": "^2.2.5",
     "cypress": "^15.1.0",
     "cypress-xpath": "^2.0.1",
-    "cypress:run:tag": "cypress run --env TAGS"
+    "cypress-run-tag": "cypress run --env TAGS"
   }
 }
